@@ -31,7 +31,7 @@ const BottomLoginSheet = () => {
             >
                 <TouchableOpacity>
                     <Ionicons name='mail' size={20} style={styles.btnIcon} color={'#fff'}/>
-                    <Text style={styles.btnDarkText}>Sign in with email</Text>
+                    <Text style={styles.btnDarkText}>Sign up with email</Text>
                 </TouchableOpacity>
             </Link>
             
