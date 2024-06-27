@@ -1,7 +1,7 @@
-import { ClerkProvider, useAuth } from "@clerk/clerk-expo";
+import { ClerkProvider, SignedIn, useAuth } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
 import { Slot, SplashScreen, Stack, useRouter, useSegments } from "expo-router";
-import { TouchableOpacity } from "react-native";
+import { TouchableOpacity, StyleSheet, ActivityIndicator, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import * as SecureStore from "expo-secure-store";
 import { useFonts } from "expo-font";
@@ -48,9 +48,27 @@ const InitialLayout = () => {
 			SplashScreen.hideAsync();
 		}
 	}, [loaded]);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    const inAuthGroup = segments[0] === "(auth)";
+
+    if (isSignedIn && !inAuthGroup) {
+      //Bring the user inside      
+      router.replace('/(auth)/');
+    } else if (!isSignedIn && inAuthGroup) {
+      //Kick the user out
+      router.replace('/');
+    }
+  }, [isSignedIn])
+  
 	
 	if (!isLoaded || !loaded) {
-		return <Slot/>
+		return (
+      <View style={{flex:1, justifyContent: 'center', alignItems: 'center'}}>
+        <ActivityIndicator size="large" color="#000" />
+      </View>
+    )
 	}
 
   return (
@@ -72,6 +90,7 @@ const InitialLayout = () => {
           ),
         }}
       />
+      <Stack.Screen name="(auth)" options={{ headerShown: false }}/>
     </Stack>
   );
 };
