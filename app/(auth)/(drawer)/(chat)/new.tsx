@@ -3,7 +3,7 @@ import React from 'react'
 import { useAuth } from '@clerk/clerk-expo'
 
 const Page = () => {
-    const {signOut} = useAuth()
+  const {signOut} = useAuth()
 
   return (
     <View>
