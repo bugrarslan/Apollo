@@ -37,7 +37,7 @@ const HeaderDropDown = ({
         {items.map((item) => (
           <DropDownMenu.Item key={item.key} onSelect={() => onSelect(item.key)}>
             <DropDownMenu.ItemTitle>{item.title}</DropDownMenu.ItemTitle>
-            <DropDownMenu.ItemIcon 
+            <DropDownMenu.ItemIcon
                 ios={{
                     name: item.icon,
                     pointSize: 20,
