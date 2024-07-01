@@ -2,7 +2,6 @@ import {
   Button,
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -42,11 +41,11 @@ const Page = () => {
       <View style={{ flex: 1 }}>
         <Text>Dummy Content</Text>
         <Button title="Sign Out" onPress={() => signOut()} />
-        <ScrollView style={{ flex: 1 }}>
+        {/* <ScrollView style={{ flex: 1 }}>
           {Array.from({ length: 100 }).map((_, index) => (
             <Text key={index}>Chat Message {index}</Text>
           ))}
-        </ScrollView>
+        </ScrollView> */}
       </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
