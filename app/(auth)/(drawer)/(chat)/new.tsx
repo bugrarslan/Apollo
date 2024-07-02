@@ -25,6 +25,7 @@ const Page = () => {
     <View style={defaultStyles.pageContainer}>
       <Stack.Screen
         options={{
+          headerTitleAlign: "center",
           headerTitle: () => (
             <HeaderDropDown
               title="ChatGPT"
