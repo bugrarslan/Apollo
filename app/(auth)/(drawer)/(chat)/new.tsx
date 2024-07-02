@@ -12,10 +12,24 @@ import { defaultStyles } from "@/constants/Styles";
 import { Stack } from "expo-router";
 import HeaderDropDown from "@/components/HeaderDropDown";
 import MessageInput from "@/components/MessageInput";
+import MessageIdeas from "@/components/MessageIdeas";
+import { Message, Role } from "@/utils/Interfaces";
+
+const DUMMY_MESSAGES: Message[] = [
+  {
+    content: "Hello! How can I help you today?",
+    role: Role.Bot,
+  },
+  {
+    content: "I need help with my React Native app.",
+    role: Role.User,
+  },
+];
 
 const Page = () => {
   const { signOut } = useAuth();
   const [gptVersion, setGptVersion] = useState("3.5");
+  const [messages, setMessages] = useState<Message[]>(DUMMY_MESSAGES);
 
   const getCompletion = async (message: string) => {
     console.log("Message to send: ", message);
@@ -40,13 +54,6 @@ const Page = () => {
         }}
       />
       <View style={{ flex: 1 }}>
-        <Text>Dummy Content</Text>
-        <Button title="Sign Out" onPress={() => signOut()} />
-        {/* <ScrollView style={{ flex: 1 }}>
-          {Array.from({ length: 100 }).map((_, index) => (
-            <Text key={index}>Chat Message {index}</Text>
-          ))}
-        </ScrollView> */}
       </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -58,6 +65,7 @@ const Page = () => {
           width: "100%",
         }}
       >
+        {messages.length === 0 && <MessageIdeas onSelectCard={getCompletion} />}
         <MessageInput onShouldSendMessage={getCompletion} />
       </KeyboardAvoidingView>
     </View>
