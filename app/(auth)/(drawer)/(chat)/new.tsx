@@ -6,8 +6,9 @@ import {
   Text,
   View,
   Image,
+  Keyboard,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "@clerk/clerk-expo";
 import { defaultStyles } from "@/constants/Styles";
 import { Stack } from "expo-router";
@@ -15,6 +16,8 @@ import HeaderDropDown from "@/components/HeaderDropDown";
 import MessageInput from "@/components/MessageInput";
 import MessageIdeas from "@/components/MessageIdeas";
 import { Message, Role } from "@/utils/Interfaces";
+import ChatMessage from "@/components/ChatMessage";
+import { FlashList } from "@shopify/flash-list";
 
 const DUMMY_MESSAGES: Message[] = [
   {
@@ -22,7 +25,53 @@ const DUMMY_MESSAGES: Message[] = [
     role: Role.Bot,
   },
   {
-    content: "I need help with my React Native app.",
+    content:
+      "I need help with my React Native app. I need help with my React Native app. I need help with my React Native app. I need help with my React Native app. I need help with my React Native app.",
+    role: Role.User,
+  },
+  {
+    content: "Hello! How can I help you today?",
+    role: Role.Bot,
+  },
+  {
+    content:
+      "I need help with my React Native app. I need help with my React Native app. I need help with my React Native app. I need help with my React Native app. I need help with my React Native app.",
+    role: Role.User,
+  },
+  {
+    content: "Hello! How can I help you today?",
+    role: Role.Bot,
+  },
+  {
+    content:
+      "I need help with my React Native app. I need help with my React Native app. I need help with my React Native app. I need help with my React Native app. I need help with my React Native app.",
+    role: Role.User,
+  },
+  {
+    content: "Hello! How can I help you today?",
+    role: Role.Bot,
+  },
+  {
+    content:
+      "I need help with my React Native app. I need help with my React Native app. I need help with my React Native app. I need help with my React Native app. I need help with my React Native app.",
+    role: Role.User,
+  },
+  {
+    content: "Hello! How can I help you today?",
+    role: Role.Bot,
+  },
+  {
+    content:
+      "I need help with my React Native app. I need help with my React Native app. I need help with my React Native app. I need help with my React Native app. I need help with my React Native app.",
+    role: Role.User,
+  },
+  {
+    content: "Hello! How can I help you today?",
+    role: Role.Bot,
+  },
+  {
+    content:
+      "I need help with my React Native app. I need help with my React Native app. I need help with my React Native app. I need help with my React Native app. I need help with my React Native app.",
     role: Role.User,
   },
 ];
@@ -30,7 +79,7 @@ const DUMMY_MESSAGES: Message[] = [
 const Page = () => {
   const { signOut } = useAuth();
   const [gptVersion, setGptVersion] = useState("3.5");
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(DUMMY_MESSAGES);
   const [height, setHeight] = useState(0);
 
   const getCompletion = async (message: string) => {
@@ -69,16 +118,23 @@ const Page = () => {
             />
           </View>
         )}
+        <FlashList
+          data={messages}
+          estimatedItemSize={400}
+          renderItem={({ item }) => <ChatMessage {...item} />}
+          contentContainerStyle={{ paddingBottom: 150, paddingTop: 30}}
+          keyboardDismissMode="on-drag"
+        />
       </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={70}
-        style={{
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          width: "100%",
-        }}
+        // style={{
+        //   position: "absolute",
+        //   bottom: 0,
+        //   left: 0,
+        //   width: "100%",
+        // }}
       >
         {messages.length === 0 && <MessageIdeas onSelectCard={getCompletion} />}
         <MessageInput onShouldSendMessage={getCompletion} />

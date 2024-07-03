@@ -72,8 +72,8 @@ const MessageInput = ({ onShouldSendMessage }: MessageInputProps) => {
 
   return (
     <BlurView
-      tint={Platform.OS === "ios" ? "extraLight" : "systemChromeMaterialLight"}
-      intensity={Platform.OS === "ios" ? 90 : 97}
+      tint={"extraLight"}
+      intensity={90}
       style={{ paddingBottom: 10, paddingTop: 10 }}
     >
       <View style={styles.row}>
