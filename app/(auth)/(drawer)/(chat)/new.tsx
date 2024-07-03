@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Text,
   View,
+  Image,
 } from "react-native";
 import React, { useState } from "react";
 import { useAuth } from "@clerk/clerk-expo";
@@ -29,10 +30,16 @@ const DUMMY_MESSAGES: Message[] = [
 const Page = () => {
   const { signOut } = useAuth();
   const [gptVersion, setGptVersion] = useState("3.5");
-  const [messages, setMessages] = useState<Message[]>(DUMMY_MESSAGES);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [height, setHeight] = useState(0);
 
   const getCompletion = async (message: string) => {
     console.log("Message to send: ", message);
+  };
+
+  const onLayout = (event: any) => {
+    const { height } = event.nativeEvent.layout;
+    setHeight(height);
   };
 
   return (
@@ -53,7 +60,15 @@ const Page = () => {
           ),
         }}
       />
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1 }} onLayout={onLayout}>
+        {messages.length === 0 && (
+          <View style={[styles.logoContainer, { marginTop: height / 2 - 100 }]}>
+            <Image
+              source={require("@/assets/images/logo-white.png")}
+              style={styles.logoImage}
+            />
+          </View>
+        )}
       </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -74,4 +89,19 @@ const Page = () => {
 
 export default Page;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  logoContainer: {
+    backgroundColor: "#000",
+    alignItems: "center",
+    justifyContent: "center",
+    alignSelf: "center",
+    width: 50,
+    height: 50,
+    borderRadius: 50,
+  },
+  logoImage: {
+    width: 30,
+    height: 30,
+    resizeMode: "cover",
+  },
+});
