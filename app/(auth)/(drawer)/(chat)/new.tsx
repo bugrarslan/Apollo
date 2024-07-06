@@ -8,7 +8,7 @@ import {
   Image,
   Keyboard,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@clerk/clerk-expo";
 import { defaultStyles } from "@/constants/Styles";
 import { Redirect, Stack } from "expo-router";
@@ -20,7 +20,7 @@ import ChatMessage from "@/components/ChatMessage";
 import { FlashList } from "@shopify/flash-list";
 import { useMMKVString } from "react-native-mmkv";
 import { Storage } from "@/utils/Storage";
-
+import OpenAI from "react-native-openai";
 
 const Page = () => {
   const { signOut } = useAuth();
@@ -32,15 +32,40 @@ const Page = () => {
   const [gptVersion, setGptVersion] = useMMKVString("gptVersion", Storage);
 
   if (!key || !organization || key === "" || organization === "") {
-    return (
-      <Redirect href={"/(auth)/(modal)/settings"} />
-    )
+    return <Redirect href={"/(auth)/(modal)/settings"} />;
   }
 
+  const openAI = useMemo(() => new OpenAI({ apiKey: key, organization }), []);
 
   const getCompletion = async (message: string) => {
-    console.log("Message to send: ", message);
+    if (message.length === 0) {
+      // create chat later, store the DB
+    }
+
+    setMessages([
+      ...messages,
+      { role: Role.User, content: message },
+      { role: Role.Bot, content: "" },
+    ]);
+
+    openAI.chat.stream({
+      messages: [{ role: `user`, content: message }],
+      model: gptVersion === "4" ? "gpt-4" : "gpt-3.5-turbo",
+    });
   };
+
+  useEffect(() => {
+    const handleMessage = (payload: any) => {
+      console.log("Message received: ", payload);
+      
+    };
+
+    openAI.chat.addListener("onChatMessageReceived", handleMessage);
+
+    return () => {
+      openAI.chat.removeListener("onChatMessageReceived");
+    };
+  }, [openAI]);
 
   const onLayout = (event: any) => {
     const { height } = event.nativeEvent.layout;
@@ -78,7 +103,7 @@ const Page = () => {
           data={messages}
           estimatedItemSize={400}
           renderItem={({ item }) => <ChatMessage {...item} />}
-          contentContainerStyle={{ paddingBottom: 150, paddingTop: 30}}
+          contentContainerStyle={{ paddingBottom: 150, paddingTop: 30 }}
           keyboardDismissMode="on-drag"
         />
       </View>
