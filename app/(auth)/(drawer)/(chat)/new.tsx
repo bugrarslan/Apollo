@@ -57,7 +57,6 @@ const Page = () => {
   useEffect(() => {
     const handleMessage = (payload: any) => {
       console.log("Message received: ", payload);
-      
     };
 
     openAI.chat.addListener("onChatMessageReceived", handleMessage);
