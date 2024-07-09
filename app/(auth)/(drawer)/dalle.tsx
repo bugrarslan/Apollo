@@ -27,7 +27,7 @@ const DUMMY_MESSAGES = [
   {
     role: Role.Bot,
     content: "",
-    imageUrl: "https://picsum.photos/200",
+    imageUrl: "https://picsum.photos/200/300",
     prompt: "A beautiful sunset over the ocean",
   },
 ];
