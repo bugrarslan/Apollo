@@ -62,9 +62,14 @@ const ChatMessage = ({
                   />
                 </Pressable>
               </ContextMenu.Trigger>
-              <ContextMenu.Content>
+              <ContextMenu.Content
+                loop={false}
+                alignOffset={10}
+                avoidCollisions={true}
+                collisionPadding={8}
+              >
                 {contextItems.map((item, index) => (
-                  <ContextMenu.Item key={item.title} {...item}>
+                  <ContextMenu.Item key={item.title}  onSelect={item.action}>
                     <ContextMenu.ItemTitle>{item.title}</ContextMenu.ItemTitle>
                     <ContextMenu.ItemIcon
                       ios={{
