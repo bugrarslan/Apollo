@@ -1,8 +1,15 @@
-import { StyleSheet, Text, View, Image } from "react-native";
+import { StyleSheet, Text, View, Image, ActivityIndicator } from "react-native";
 import React from "react";
 import { Message, Role } from "@/utils/Interfaces";
+import Colors from "@/constants/Colors";
 
-const ChatMessage = ({ content, role, imageUrl, prompt }: Message) => {
+const ChatMessage = ({
+  content,
+  role,
+  imageUrl,
+  prompt,
+  loading,
+}: Message & { loading?: boolean }) => {
   return (
     <View style={styles.row}>
       {role === Role.Bot ? (
@@ -20,7 +27,22 @@ const ChatMessage = ({ content, role, imageUrl, prompt }: Message) => {
           style={styles.avatar}
         />
       )}
-      <Text style={styles.text}>{content}</Text>
+      {loading ? (
+        <View style={styles.loading}>
+          <ActivityIndicator color={Colors.primary} />
+        </View>
+      ) : (
+        <>
+          {content === "" && imageUrl ? (
+            <Image
+              source={{ uri: imageUrl }}
+              style={styles.previewImage}
+            />
+          ) : (
+            <Text style={styles.text}>{content}</Text>
+          )}
+        </>
+      )}
     </View>
   );
 };
@@ -30,7 +52,7 @@ export default ChatMessage;
 const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
-    alignItems: 'flex-start',
+    alignItems: "flex-start",
     paddingHorizontal: 14,
     gap: 14,
     marginVertical: 12,
@@ -43,17 +65,27 @@ const styles = StyleSheet.create({
   btnImage: {
     width: 16,
     height: 16,
-    margin: 6
+    margin: 6,
   },
   item: {
     borderRadius: 15,
-    overflow: 'hidden',
-    backgroundColor: '#000'
+    overflow: "hidden",
+    backgroundColor: "#000",
   },
   text: {
     padding: 4,
     fontSize: 16,
     flexWrap: "wrap",
     flex: 1,
-  }
+  },
+  loading: {
+    justifyContent: "center",
+    height: 26,
+    marginLeft: 14,
+  },
+  previewImage: {
+    width: 240,
+    height: 240,
+    borderRadius: 10,
+  },
 });

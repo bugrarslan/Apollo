@@ -23,15 +23,23 @@ import { Storage } from "@/utils/Storage";
 import OpenAI from "react-native-openai";
 import Colors from "@/constants/Colors";
 
+const DUMMY_MESSAGES = [
+  {
+    role: Role.Bot,
+    content: "",
+    imageUrl: "https://picsum.photos/200",
+    prompt: "A beautiful sunset over the ocean",
+  },
+];
+
 const Page = () => {
   const { signOut } = useAuth();
 
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(DUMMY_MESSAGES);
   const [height, setHeight] = useState(0);
   const [working, setWorking] = useState(false);
   const [key, setKey] = useMMKVString("apiKey", Storage);
   const [organization, setOrganization] = useMMKVString("org", Storage);
-  const [gptVersion, setGptVersion] = useMMKVString("gptVersion", Storage);
 
   if (!key || !organization || key === "" || organization === "") {
     return <Redirect href={"/(auth)/(modal)/settings"} />;
@@ -51,31 +59,37 @@ const Page = () => {
       prompt: message
     });
     console.log("result: ", result);
+
+    if(result.data && result.data.length > 0) {
+      const imageUrl = result.data[0].url;
+      setMessages((prev) => [...prev, {role: Role.Bot, content: "", imageUrl, prompt: message}]);
+    }
+    setWorking(false);
   };
 
-  useEffect(() => {
-    const handleMessage = (payload: any) => {
-      console.log("Message received: ", payload);
-      setMessages((messages) => {
-        const newMessage = payload.choices[0].delta.content;
-        if (newMessage) {
-          messages[messages.length - 1].content += newMessage;
-        }
+  // useEffect(() => {
+  //   const handleMessage = (payload: any) => {
+  //     console.log("Message received: ", payload);
+  //     setMessages((messages) => {
+  //       const newMessage = payload.choices[0].delta.content;
+  //       if (newMessage) {
+  //         messages[messages.length - 1].content += newMessage;
+  //       }
 
-        if (payload.choices[0]?.finishReason) {
-          //save to DB
-          console.log("stream ended");
-        }
-        return messages;
-      });
-    };
+  //       if (payload.choices[0]?.finishReason) {
+  //         //save to DB
+  //         console.log("stream ended");
+  //       }
+  //       return messages;
+  //     });
+  //   };
 
-    openAI.chat.addListener("onChatMessageReceived", handleMessage);
+  //   openAI.chat.addListener("onChatMessageReceived", handleMessage);
 
-    return () => {
-      openAI.chat.removeListener("onChatMessageReceived");
-    };
-  }, [openAI]);
+  //   return () => {
+  //     openAI.chat.removeListener("onChatMessageReceived");
+  //   };
+  // }, [openAI]);
 
   const onLayout = (event: any) => {
     const { height } = event.nativeEvent.layout;
@@ -126,6 +140,7 @@ const Page = () => {
           renderItem={({ item }) => <ChatMessage {...item} />}
           contentContainerStyle={{ paddingBottom: 150, paddingTop: 30 }}
           keyboardDismissMode="on-drag"
+          ListFooterComponent={<>{working && <ChatMessage {...{role: Role.Bot, content: "", loading: true}}/>}</>}
         />
       </View>
       <KeyboardAvoidingView
