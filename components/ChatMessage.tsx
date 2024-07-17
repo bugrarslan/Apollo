@@ -10,7 +10,12 @@ import React from "react";
 import { Message, Role } from "@/utils/Interfaces";
 import Colors from "@/constants/Colors";
 import * as ContextMenu from "zeego/context-menu";
-import { copyImageToClipboard, downloadAndSaveImage, shareImage } from "@/utils/Image";
+import {
+  copyImageToClipboard,
+  downloadAndSaveImage,
+  shareImage,
+} from "@/utils/Image";
+import { Link } from "expo-router";
 
 const ChatMessage = ({
   content,
@@ -20,13 +25,21 @@ const ChatMessage = ({
   loading,
 }: Message & { loading?: boolean }) => {
   const contextItems = [
-    { title: 'Copy', systemIcon: 'doc.on.doc', action: () => copyImageToClipboard(imageUrl!) },
     {
-      title: 'Save to Photos',
-      systemIcon: 'arrow.down.to.line',
+      title: "Copy",
+      systemIcon: "doc.on.doc",
+      action: () => copyImageToClipboard(imageUrl!),
+    },
+    {
+      title: "Save to Photos",
+      systemIcon: "arrow.down.to.line",
       action: () => downloadAndSaveImage(imageUrl!),
     },
-    { title: 'Share', systemIcon: 'square.and.arrow.up', action: () => shareImage(imageUrl!) },
+    {
+      title: "Share",
+      systemIcon: "square.and.arrow.up",
+      action: () => shareImage(imageUrl!),
+    },
   ];
 
   return (
@@ -55,12 +68,19 @@ const ChatMessage = ({
           {content === "" && imageUrl ? (
             <ContextMenu.Root>
               <ContextMenu.Trigger>
-                <Pressable>
-                  <Image
-                    source={{ uri: imageUrl }}
-                    style={styles.previewImage}
-                  />
-                </Pressable>
+                <Link
+                  href={`/(auth)/(modal)/${encodeURIComponent(
+                    imageUrl
+                  )}?propmt=${encodeURIComponent(prompt!)}`}
+                  asChild
+                >
+                  <Pressable>
+                    <Image
+                      source={{ uri: imageUrl }}
+                      style={styles.previewImage}
+                    />
+                  </Pressable>
+                </Link>
               </ContextMenu.Trigger>
               <ContextMenu.Content
                 loop={false}
@@ -69,7 +89,7 @@ const ChatMessage = ({
                 collisionPadding={8}
               >
                 {contextItems.map((item, index) => (
-                  <ContextMenu.Item key={item.title}  onSelect={item.action}>
+                  <ContextMenu.Item key={item.title} onSelect={item.action}>
                     <ContextMenu.ItemTitle>{item.title}</ContextMenu.ItemTitle>
                     <ContextMenu.ItemIcon
                       ios={{
