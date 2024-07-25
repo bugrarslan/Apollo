@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
-import * as DropDownMenu from "zeego/dropdown-menu";
+import * as DropdownMenu from "zeego/dropdown-menu";
 import Colors from "@/constants/Colors";
 
 export type HeaderDropDownProps = {
@@ -17,15 +17,15 @@ const HeaderDropDown = ({
   items,
 }: HeaderDropDownProps) => {
   return (
-    <DropDownMenu.Root>
-      <DropDownMenu.Trigger>
+    <DropdownMenu.Root>
+      <DropdownMenu.Trigger>
         <View style={styles.container}>
             <Text style={styles.text}>{title}</Text>
             {selected && (<Text style={styles.versionText}>{selected} &gt;</Text>)}
         </View>
         
-      </DropDownMenu.Trigger>
-      <DropDownMenu.Content
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content
         loop={false}
         side="bottom"
         align="start"
@@ -35,19 +35,19 @@ const HeaderDropDown = ({
         sideOffset={0}
       >
         {items.map((item) => (
-          <DropDownMenu.Item key={item.key} onSelect={() => onSelect(item.key)}>
-            <DropDownMenu.ItemTitle>{item.title}</DropDownMenu.ItemTitle>
-            <DropDownMenu.ItemIcon
+          <DropdownMenu.Item key={item.key} onSelect={() => onSelect(item.key)}>
+            <DropdownMenu.ItemTitle>{item.title}</DropdownMenu.ItemTitle>
+            <DropdownMenu.ItemIcon
                 ios={{
                     name: item.icon,
                     pointSize: 20,
                 }}
                 androidIconName={item.icon}
             />
-          </DropDownMenu.Item>
+          </DropdownMenu.Item>
         ))}
-      </DropDownMenu.Content>
-    </DropDownMenu.Root>
+      </DropdownMenu.Content>
+    </DropdownMenu.Root>
   );
 };
 
