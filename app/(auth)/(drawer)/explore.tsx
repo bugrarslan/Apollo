@@ -1,11 +1,12 @@
 import {
+  Image,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Drawer } from "expo-router/drawer";
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "@/constants/Colors";
@@ -15,6 +16,11 @@ import {
   getHeaderTitle,
   useHeaderHeight,
 } from "@react-navigation/elements";
+import { createShimmerPlaceholder } from "react-native-shimmer-placeholder";
+import { LinearGradient } from "expo-linear-gradient";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+
+const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient);
 
 const sections = [
   { title: "Top Picks", label: "Curated top picks from this week" },
@@ -78,6 +84,14 @@ const apps = [
 const Page = () => {
   const headerHeight = useHeaderHeight();
   const [selected, setSelected] = useState(sections[0]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -101,24 +115,38 @@ const Page = () => {
           ),
           header: ({ options, route }) => (
             <View>
-              <Header {...options} title={getHeaderTitle(options, route.name)} />
+              <Header
+                {...options}
+                title={getHeaderTitle(options, route.name)}
+              />
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ gap: 8, paddingHorizontal: 16, paddingVertical: 10 }}>
+                contentContainerStyle={{
+                  gap: 8,
+                  paddingHorizontal: 16,
+                  paddingVertical: 10,
+                }}
+              >
                 {sections.map((section, index) => (
                   <TouchableOpacity
                     key={index}
                     onPress={() => {
                       setSelected(section);
                     }}
-                    style={selected === section ? styles.sectionBtnSelected : styles.sectionBtn}
-                    >
+                    style={
+                      selected === section
+                        ? styles.sectionBtnSelected
+                        : styles.sectionBtn
+                    }
+                  >
                     <Text
                       style={
-                        selected === section ? styles.sectionBtnTextSelected : styles.sectionBtnText
+                        selected === section
+                          ? styles.sectionBtnTextSelected
+                          : styles.sectionBtnText
                       }
-                      >
+                    >
                       {section.title}
                     </Text>
                   </TouchableOpacity>
@@ -128,18 +156,77 @@ const Page = () => {
           ),
         }}
       />
-      <ScrollView style={{ paddingTop: headerHeight }}>
-        {Array.from({ length: 20 }).map((_, index) => (
-          <View
-            key={index}
-            style={{
-              padding: 16,
-              borderBottomWidth: 1,
-              borderBottomColor: Colors.grey,
-            }}
-          >
-            <Text>Test</Text>
-          </View>
+      <ScrollView contentContainerStyle={{ paddingTop: headerHeight }}>
+        {sections.map((section, index) => (
+          <React.Fragment key={index}>
+            {selected === section && (
+              <Animated.View
+                style={styles.section}
+                entering={FadeIn.duration(600).delay(400)}
+                exiting={FadeOut.duration(400)}
+              >
+                <ShimmerPlaceholder width={160} height={20} visible={!loading}>
+                  <Text style={styles.title}>{selected.title}</Text>
+                </ShimmerPlaceholder>
+                <ShimmerPlaceholder
+                  width={280}
+                  height={20}
+                  visible={!loading}
+                  shimmerStyle={{ marginVertical: 10 }}
+                >
+                  <Text style={styles.label}>{selected.label}</Text>
+                </ShimmerPlaceholder>
+
+                {apps.map((app, index) => (
+                  <View key={index} style={styles.card}>
+                    <ShimmerPlaceholder
+                      width={60}
+                      height={60}
+                      visible={!loading}
+                      shimmerStyle={{ borderRadius: 30 }}
+                    >
+                      <Image
+                        source={{ uri: app.image }}
+                        style={styles.cardImage}
+                      />
+                    </ShimmerPlaceholder>
+
+                    <View style={{ flexShrink: 1, gap: 4 }}>
+                      <ShimmerPlaceholder
+                        width={160}
+                        height={20}
+                        visible={!loading}
+                      >
+                        <Text style={styles.cardTitle}>
+                          {apps[index].title}
+                        </Text>
+                      </ShimmerPlaceholder>
+
+                      <ShimmerPlaceholder
+                        width={160}
+                        height={20}
+                        visible={!loading}
+                      >
+                        <Text style={styles.cardDesc}>
+                          {apps[index].description}
+                        </Text>
+                      </ShimmerPlaceholder>
+
+                      <ShimmerPlaceholder
+                        width={250}
+                        height={20}
+                        visible={!loading}
+                      >
+                        <Text style={styles.cardAuthor}>
+                          {apps[index].author}
+                        </Text>
+                      </ShimmerPlaceholder>
+                    </View>
+                  </View>
+                ))}
+              </Animated.View>
+            )}
+          </React.Fragment>
         ))}
       </ScrollView>
     </View>
@@ -158,12 +245,12 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 8,
   },
   label: {
     fontSize: 16,
-    color: '#666',
+    color: "#666",
     marginBottom: 16,
   },
   sectionBtn: {
@@ -179,20 +266,20 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   sectionBtnText: {
-    color: '#000',
-    fontWeight: '500',
+    color: "#000",
+    fontWeight: "500",
   },
   sectionBtnTextSelected: {
-    color: '#fff',
-    fontWeight: '500',
+    color: "#fff",
+    fontWeight: "500",
   },
   card: {
     borderRadius: 8,
     backgroundColor: Colors.input,
     padding: 16,
     marginBottom: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 16,
   },
   cardImage: {
@@ -202,14 +289,14 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   cardDesc: {
     fontSize: 14,
-    color: '#000',
+    color: "#000",
   },
   cardAuthor: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
   },
 });
