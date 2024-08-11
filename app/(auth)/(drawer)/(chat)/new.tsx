@@ -8,7 +8,7 @@ import {
   Image,
   Keyboard,
 } from "react-native";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@clerk/clerk-expo";
 import { defaultStyles } from "@/constants/Styles";
 import { Redirect, Stack } from "expo-router";
@@ -21,6 +21,8 @@ import { FlashList } from "@shopify/flash-list";
 import { useMMKVString } from "react-native-mmkv";
 import { Storage } from "@/utils/Storage";
 import OpenAI from "react-native-openai";
+import { useSQLiteContext } from "expo-sqlite/next";
+import { addChat, addMessage } from "@/utils/Database";
 
 const Page = () => {
   const { signOut } = useAuth();
@@ -30,6 +32,15 @@ const Page = () => {
   const [key, setKey] = useMMKVString("apiKey", Storage);
   const [organization, setOrganization] = useMMKVString("org", Storage);
   const [gptVersion, setGptVersion] = useMMKVString("gptVersion", Storage);
+  const [chatId, _setChatId] = useState<string>('');
+  const chatIdRef = useRef(chatId);
+
+  function setChatId(id: string) {
+    chatIdRef.current = id;
+    _setChatId(id);
+  }
+
+  const db = useSQLiteContext();
 
   if (!key || !organization || key === "" || organization === "") {
     return <Redirect href={"/(auth)/(modal)/settings"} />;
@@ -39,7 +50,10 @@ const Page = () => {
 
   const getCompletion = async (message: string) => {
     if (message.length === 0) {
-      // create chat later, store the DB
+      const result = await addChat(db, message);
+      const chatID = result.lastInsertRowId;
+      setChatId(chatID.toString());
+      addMessage(db, chatID, { role: Role.User, content: message });
     }
 
     setMessages([
@@ -56,7 +70,7 @@ const Page = () => {
 
   useEffect(() => {
     const handleMessage = (payload: any) => {
-      console.log("Message received: ", payload);
+      // console.log("Message received: ", payload);
       setMessages((messages) => {
         const newMessage = payload.choices[0].delta.content;
         if (newMessage) {
@@ -65,7 +79,10 @@ const Page = () => {
 
         if (payload.choices[0]?.finishReason) {
           //save to DB
-          console.log("stream ended");
+          addMessage(db, parseInt(chatIdRef.current), {
+            role: Role.Bot,
+            content: messages[messages.length - 1].content,
+          });
         }
         return messages;
       });
